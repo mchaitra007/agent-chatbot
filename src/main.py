@@ -21,7 +21,7 @@ if "session_id" not in st.session_state:
 def get_response(user_input):
     print(f"session id: {st.session_state.session_id}")
     response, trace, citations = agent.invoke_agent(user_input, agent_id, agent_alias_id, st.session_state.session_id)
-    print(f"response from bedrock agent: {response}")
+    #print(f"response from bedrock agent: {response}")
     return response, trace, citations
     
 # Initialize chat history
@@ -31,7 +31,8 @@ if "messages" not in st.session_state:
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+        for content in message['content']:
+            st.markdown(content['text'])
 
 # Accept user input
 if prompt := st.chat_input("How can i help you today?"):
@@ -45,10 +46,11 @@ if prompt := st.chat_input("How can i help you today?"):
 # Display assistant response in chat message container
     with st.chat_message("assistant"):
         response, trace, citations = get_response(prompt)
+        asst_content = [{"text": response}]
         st.markdown(response)
         if citations:
             st.markdown(citations)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.session_state.messages.append({"role": "assistant", "content": asst_content})
 
 # Display a button to end the session
 end_session_button = st.button("End Session", on_click=utils.clear_input)
